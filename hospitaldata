@@ -13,4 +13,9 @@ def clean_data(data)
   df["sex"] = df["sex"].str.replace("male", "1")
   df["sex"] = df["sex"].str.replace("m", "1")
 
+  #changes cancer; no to 0, yes to 1, and metastatic to 2
+  df["cancer"] = df["cancer"].str.replace("no", "0")
+  df["cancer"] = df["cancer"].str.replace("yes", "1")
+  df["cancer"] = df["cancer"].str.replace("metastatic", "2")
+
   print(df)
