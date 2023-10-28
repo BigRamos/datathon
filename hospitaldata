@@ -1,1 +1,16 @@
+def clean_data(data)
+  data_path = './TD_HOSPITAL_TRAIN.csv'
+  df = pd.read_csv(data_path)
+  df = df.drop_duplicates()
 
+  #removes not needed columns
+  df.drop(columns = "dose")
+  df.drop(columns = "psych3")
+
+  #changes males to 1 and female to 0
+  df["sex"] = df["sex"].str.lower()
+  df["sex"] = df["sex"].str.replace("female", "0")
+  df["sex"] = df["sex"].str.replace("male", "1")
+  df["sex"] = df["sex"].str.replace("m", "1")
+
+  print(df)
