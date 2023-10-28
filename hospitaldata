@@ -6,6 +6,7 @@ def clean_data(data)
   #removes not needed columns
   df.drop(columns = "dose")
   df.drop(columns = "psych3")
+  df.drop(columns = 'pdeath')
 
   #changes males to 1 and female to 0
   df["sex"] = df["sex"].str.lower()
@@ -17,5 +18,26 @@ def clean_data(data)
   df["cancer"] = df["cancer"].str.replace("no", "0")
   df["cancer"] = df["cancer"].str.replace("yes", "1")
   df["cancer"] = df["cancer"].str.replace("metastatic", "2")
+  
+  #changes dnr; no dnr to 0, dnr BEFORE sadm to 1, dnr AFTER sadm to 2
+  df['dnr'] = df['dnr'].str.replace('no dnr', '0')
+  df['dnr'] = df['dnr'].str.replace('dnr before sadm', '1')
+  df['dnr'] = df['dnr'].str.replace('dnr after sadm', '2')
+  
+  #changes primary; Cirrhosis = 0, Colon Cancer = 1, ARF/MOSF w/Sepsis = 2, COPD = 3, Lung Cancer = 4, MOSF w/Malig = 5, CHF = 6
+  df['primary'] = df['primary'].str.replace('Cirrhosis', '0')
+  df['primary'] = df['primary'].str.replace('Colon Cancer', '1')
+  df['primary'] = df['primary'].str.replace('ARF/MOSF w/Sepsis', '2')
+  df['primary'] = df['primary'].str.replace('COPD', '3')
+  df['primary'] = df['primary'].str.replace('Lung Cancer', '4')
+  df['primary'] = df['primary'].str.replace('MOSF w/Malig', '5')
+  df['primary'] = df['primary'].str.replace('CHF', '6')
+  
+  #changes extraprimary; COPD/CHF/Cirrhosis = 0, Cancer = 1, ARF/MOSF = 2, Coma = 3
+  df['extraprimary'] = df['extraprimary'].str.replace('COPD/CHF/Cirrhosis', '0')
+  df['extraprimary'] = df['extraprimary'].str.replace('Cancer', '1')
+  df['extraprimary'] = df['extraprimary'].str.replace('ARF/MOSF', '2')
+  df['extraprimary'] = df['extraprimary'].str.replace('Coma', '3')
+
 
   print(df)
