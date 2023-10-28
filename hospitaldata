@@ -40,4 +40,16 @@ def clean_data(data)
   df['extraprimary'] = df['extraprimary'].str.replace('Coma', '3')
 
 
+#removes the blanks out fo 2 designated columns
+def remove_blanks (col1, col2):
+    df_copy = df
+    df_copy = df_copy.fillna("")
+    for x in df_copy.index:
+        if df_copy.loc[x, col1] == "":
+            df_copy.drop(x, inplace=True)
+    for x in df_copy.index:
+        if df_copy.loc[x, col2] == "":
+            df_copy.drop(x, inplace=True)
+    return df_copy
+
   print(df)
