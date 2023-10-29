@@ -1,0 +1,220 @@
+from matplotlib import axis
+import numpy as np
+import pandas as pd
+from sklearn.decomposition import PCA
+import tensorflow as tf
+import matplotlib.pyplot as plt
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from tensorflow import keras
+from tensorflow.keras import layers
+from sklearn.linear_model import LinearRegression
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import mean_squared_error
+from sklearn.metrics import r2_score
+
+
+
+df = pd.read_csv("TD_HOSPITAL_TRAIN.csv")
+features = list(df.columns)
+features.remove('death')
+
+#dataset - dataset
+#features - list of features to do PCA on (principal component analysis)
+#what it do - perform pca on dataset given features.
+#   add transfromed data to the data set it called data from
+#   delete any data in the features
+#goal - reduce complexity in data so that we have 4 columns in the end
+def clean_data (file):
+    data_path = file
+    df = pd.read_csv(data_path)
+    df = df.drop_duplicates()
+
+    #removes not needed columns
+    df.drop(columns = "dose")
+    df.drop(columns = "psych3")
+    df.drop(columns = "pdeath")
+
+    #changes males to 1 and female to 0
+    df["sex"] = df["sex"].str.lower()
+    df["sex"] = df["sex"].str.replace("1", "")
+    df["sex"] = df["sex"].replace("female", 0)
+    df["sex"] = df["sex"].replace("male", 1)
+    df["sex"] = df["sex"].replace("m", 1)
+
+    #changes cancer; no to 0, yes to 1, and metastatic to 2
+    df["cancer"] = df["cancer"].replace("no", 0)
+    df["cancer"] = df["cancer"].replace("yes", 1)
+    df["cancer"] = df["cancer"].replace("metastatic", 2)
+
+    #changes dnr; no dnr to 0, dnr BEFORE sadm to 1, dnr AFTER sadm to 2
+    df['dnr'] = df['dnr'].replace('no dnr', 0)
+    df['dnr'] = df['dnr'].replace('dnr before sadm', 1)
+    df['dnr'] = df['dnr'].replace('dnr after sadm', 2)
+
+    #changes income to ints
+    #under 11k ---> 11
+    #11-25k ---> 25
+    #25-50k ---> 50
+    #>50k ---> 100
+    df["income"] = df["income"].replace("under $11k", 11)
+    df["income"] = df["income"].replace("$11-$25k", 25)
+    df["income"] = df["income"].replace("$25-$50k", 50)
+    df["income"] = df["income"].replace(">$50k", 100)
+
+    #changes primary; Cirrhosis = 0, Colon Cancer = 1, ARF/MOSF w/Sepsis = 2, COPD = 3, Lung Cancer = 4, MOSF w/Malig = 5, CHF = 6
+    df['primary'] = df['primary'].replace('Cirrhosis', 0)
+    df['primary'] = df['primary'].replace('Colon Cancer', 1)
+    df['primary'] = df['primary'].replace('ARF/MOSF w/Sepsis', 2)
+    df['primary'] = df['primary'].replace('COPD', 3)
+    df['primary'] = df['primary'].replace('Lung Cancer', 4)
+    df['primary'] = df['primary'].replace('MOSF w/Malig', 5)
+    df['primary'] = df['primary'].replace('CHF', 6)
+    df['primary'] = df['primary'].replace('Coma', 7)
+  
+    #changes extraprimary; COPD/CHF/Cirrhosis = 0, Cancer = 1, ARF/MOSF = 2, Coma = 3
+    df['extraprimary'] = df['extraprimary'].replace('COPD/CHF/Cirrhosis', 0)
+    df['extraprimary'] = df['extraprimary'].replace('Cancer', 1)
+    df['extraprimary'] = df['extraprimary'].replace('ARF/MOSF', 2)
+    df['extraprimary'] = df['extraprimary'].replace('Coma', 3)
+
+
+    #changes disabilities to ints
+    #<2 mo. follow-up    ---> 0
+    #no(M2 and SIP pres) ---> 1
+    #SIP>=30             ---> 2
+    #adl>=4 (>=5 if sur) ---> 3
+    df["disability"] = df["disability"].replace("<2 mo. follow-up", 0)
+    df["disability"] = df["disability"].replace("no(M2 and SIP pres)", 1)
+    df["disability"] = df["disability"].replace("SIP>=30", 2)
+    df["disability"] = df["disability"].replace("adl>=4 (>=5 if sur)", 3)
+    df["disability"] = df["disability"].replace("Coma or Intub", 4)
+
+    #removes outliers from education column
+    for x in df.index:
+       if df.loc[x, "education"] % 1 != 0:
+           df.drop(x, inplace=True)
+
+    #removes data of ages greater than 122
+    for x in df.index:
+       if df.loc[x, "age"] > 122:
+            df.drop(x, inplace=True)
+    return df
+
+
+def fill_missing_with_mean(df):
+    # Calculate the mean for each column
+    means = df.mean(numeric_only=True)
+    # Fill missing values with the mean of their respective columns
+    df_filled = df.fillna(means)
+    return df_filled
+'''
+#dataset = dataset
+#features = list of features to simplfy
+#name = string input name
+def doPCA(dataset,features,name):
+    #extract features
+    df = dataset
+    feature_data = df[features]
+    #standardize all the data
+    sdata = (feature_data - feature_data.mean()) / feature_data.std()
+    pca = PCA(n_components=2)
+    pca.fit(sdata)
+    #idk if we need this.
+    #explained_variance = pca.explained_variance_ratio_
+    #print("Explained Variance Ratios:", explained_variance)
+    #transfromed data is what we must append onto new list
+    tdata = pca.transform(sdata)
+
+    #append data to the end
+    
+    for i in range(len(tdata)):
+        df[name][i] = tdata[i][0]
+    #delete data that we performed PCA on
+    for i in features:
+        del df[i]
+    
+    return df
+'''
+def doPCA(dataset, features, name):
+    # Extract features
+    df = dataset
+    feature_data = df[features]
+    # Standardize all the data
+    sdata = (feature_data - feature_data.mean()) / feature_data.std()
+    # Perform PCA
+    pca = PCA(n_components=2)
+    tdata = pca.fit_transform(sdata)
+    # Standardize the transformed data
+    tdata = (tdata - tdata.mean()) / tdata.std()
+    # Append data to the DataFrame
+    df[name] = tdata[:, 0]  # Assuming you want to append the first principal component
+    # Delete features
+    df.drop(columns=features, inplace=True)
+    return df
+
+cleandf = clean_data ("TD_HOSPITAL_TRAIN.csv")
+fulldf = fill_missing_with_mean(cleandf)
+
+#MAIN CODE
+for x, y, z in zip(df.loc[:, 'blood'],df.loc[:, 'bp'], df.loc[:, 'death']):
+    if z == 1:    
+        plt.scatter(x, y, color='red')  # You can customize the color as needed
+    else:    
+        plt.scatter(x, y, color='blue')  # You can customize the color as needed
+plt.axhline(0, color='k', linestyle='--', linewidth=1)
+plt.axvline(0, color='k', linestyle='--', linewidth=1)
+plt.xlabel('blood')
+plt.ylabel('bp')
+plt.title('PCA-Transformed Data')
+plt.show()
+#add data to the list
+#do for each group of data
+klist1 = ['blood', 'bloodchem1', 'bloodchem2', 'bloodchem3', 'bloodchem4', 'bloodchem5', 'bloodchem6','glucose', 'bp', 'diabetes']
+fdf = doPCA(fulldf, klist1, 'Blood PCA')
+fdf = doPCA(fulldf,['education','income'],'Money PCA')
+
+
+'''
+fdf = doPCA(fulldf,['education','income'],'Money PCA')
+fdf = doPCA(fulldf,['reflex','age','heart','sleep','disability'],'Weakness PCA')
+fdf = doPCA(fulldf,['pain', 'cancer'],'Ouch PCA')
+
+X = fdf.drop(columns =['death','sex','race','pdeath'])
+y = fdf['death']
+
+
+#def find_nan_columns(dataframe):
+    #A list of column names with NaN values.
+ # nan_columns = dataframe.columns[dataframe.isna().any()].tolist()
+  #return nan_columns
+
+#print(find_nan_columns(fdf))
+'''
+'''
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Initialize the Linear Regression model
+model = LinearRegression()
+
+# Train the model on the training data
+model.fit(X_train, y_train)
+
+# Make predictions on the test set
+y_pred = model.predict(X_test)
+
+# Evaluate the model
+mse = mean_squared_error(y_test, y_pred)
+print(f'Mean Squared Error: {mse}')
+
+# Assuming y_test is the test labels and y_pred is the predicted labels
+r2 = r2_score(y_test, y_pred)
+print(f'R-squared: {r2}')
+
+
+plt.scatter(y_test, y_pred)
+plt.xlabel('Actual Values (y_test)')
+plt.ylabel('Predicted Values (y_pred)')
+plt.title('Linear Regression on PCA-Transformed Data')
+plt.show()
+'''
