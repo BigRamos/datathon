@@ -1,94 +1,85 @@
-def clean_data(data)
-  data_path = './TD_HOSPITAL_TRAIN.csv'
-  df = pd.read_csv(data_path)
-  df = df.drop_duplicates()
+def clean_data (file):
+    data_path = file
+    df = pd.read_csv(data_path)
+    df = df.drop_duplicates()
 
-  #removes not needed columns
-  df.drop(columns = "dose")
-  df.drop(columns = "psych3")
-  df.drop(columns = 'pdeath')
+    #removes not needed columns
+    df.drop(columns = "dose")
+    df.drop(columns = "psych3")
+    df.drop(columns = "pdeath")
 
-  #changes males to 1 and female to 0
-  df["sex"] = df["sex"].str.lower()
-  df["sex"] = df["sex"].str.replace("female", "0")
-  df["sex"] = df["sex"].str.replace("male", "1")
-  df["sex"] = df["sex"].str.replace("m", "1")
+    #changes males to 1 and female to 0
+    df["sex"] = df["sex"].str.lower()
+    df["sex"] = df["sex"].str.replace("1", "")
+    df["sex"] = df["sex"].str.replace("female", "0")
+    df["sex"] = df["sex"].str.replace("male", "1")
+    df["sex"] = df["sex"].str.replace("m", "1")
 
-  #changes cancer; no to 0, yes to 1, and metastatic to 2
-  df["cancer"] = df["cancer"].str.replace("no", "0")
-  df["cancer"] = df["cancer"].str.replace("yes", "1")
-  df["cancer"] = df["cancer"].str.replace("metastatic", "2")
+    #changes cancer; no to 0, yes to 1, and metastatic to 2
+    df["cancer"] = df["cancer"].str.replace("no", "0")
+    df["cancer"] = df["cancer"].str.replace("yes", "1")
+    df["cancer"] = df["cancer"].str.replace("metastatic", "2")
+
+    #changes dnr; no dnr to 0, dnr BEFORE sadm to 1, dnr AFTER sadm to 2
+    df['dnr'] = df['dnr'].str.replace('no dnr', '0')
+    df['dnr'] = df['dnr'].str.replace('dnr before sadm', '1')
+    df['dnr'] = df['dnr'].str.replace('dnr after sadm', '2')
+
+    #changes income to ints
+    #under 11k ---> 11
+    #11-25k ---> 25
+    #25-50k ---> 50
+    #>50k ---> 100
+    df["income"] = df["income"].replace("under $11k", "11")
+    df["income"] = df["income"].replace("$11-$25k", "25")
+    df["income"] = df["income"].replace("$25-$50k", "50")
+    df["income"] = df["income"].replace(">$50k", "100")
+
+    #changes primary; Cirrhosis = 0, Colon Cancer = 1, ARF/MOSF w/Sepsis = 2, COPD = 3, Lung Cancer = 4, MOSF w/Malig = 5, CHF = 6
+    df['primary'] = df['primary'].str.replace('Cirrhosis', '0')
+    df['primary'] = df['primary'].str.replace('Colon Cancer', '1')
+    df['primary'] = df['primary'].str.replace('ARF/MOSF w/Sepsis', '2')
+    df['primary'] = df['primary'].str.replace('COPD', '3')
+    df['primary'] = df['primary'].str.replace('Lung Cancer', '4')
+    df['primary'] = df['primary'].str.replace('MOSF w/Malig', '5')
+    df['primary'] = df['primary'].str.replace('CHF', '6')
   
-  #changes dnr; no dnr to 0, dnr BEFORE sadm to 1, dnr AFTER sadm to 2
-  df['dnr'] = df['dnr'].str.replace('no dnr', '0')
-  df['dnr'] = df['dnr'].str.replace('dnr before sadm', '1')
-  df['dnr'] = df['dnr'].str.replace('dnr after sadm', '2')
-  
-  #changes primary; Cirrhosis = 0, Colon Cancer = 1, ARF/MOSF w/Sepsis = 2, COPD = 3, Lung Cancer = 4, MOSF w/Malig = 5, CHF = 6
-  df['primary'] = df['primary'].str.replace('Cirrhosis', '0')
-  df['primary'] = df['primary'].str.replace('Colon Cancer', '1')
-  df['primary'] = df['primary'].str.replace('ARF/MOSF w/Sepsis', '2')
-  df['primary'] = df['primary'].str.replace('COPD', '3')
-  df['primary'] = df['primary'].str.replace('Lung Cancer', '4')
-  df['primary'] = df['primary'].str.replace('MOSF w/Malig', '5')
-  df['primary'] = df['primary'].str.replace('CHF', '6')
-  
-  #changes extraprimary; COPD/CHF/Cirrhosis = 0, Cancer = 1, ARF/MOSF = 2, Coma = 3
-  df['extraprimary'] = df['extraprimary'].str.replace('COPD/CHF/Cirrhosis', '0')
-  df['extraprimary'] = df['extraprimary'].str.replace('Cancer', '1')
-  df['extraprimary'] = df['extraprimary'].str.replace('ARF/MOSF', '2')
-  df['extraprimary'] = df['extraprimary'].str.replace('Coma', '3')
+    #changes extraprimary; COPD/CHF/Cirrhosis = 0, Cancer = 1, ARF/MOSF = 2, Coma = 3
+    df['extraprimary'] = df['extraprimary'].str.replace('COPD/CHF/Cirrhosis', '0')
+    df['extraprimary'] = df['extraprimary'].str.replace('Cancer', '1')
+    df['extraprimary'] = df['extraprimary'].str.replace('ARF/MOSF', '2')
+    df['extraprimary'] = df['extraprimary'].str.replace('Coma', '3')
 
 
-  #removes the blanks out fo 2 designated columns
-  def remove_blanks (col1, col2):
+    #changes disabilities to ints
+    #<2 mo. follow-up    ---> 0
+    #no(M2 and SIP pres) ---> 1
+    #SIP>=30             ---> 2
+    #adl>=4 (>=5 if sur) ---> 3
+    df["disability"] = df["disability"].replace("<2 mo. follow-up", "0")
+    df["disability"] = df["disability"].replace("no(M2 and SIP pres)", "1")
+    df["disability"] = df["disability"].replace("SIP>=30", "2")
+    df["disability"] = df["disability"].replace("adl>=4 (>=5 if sur)", "3")
+
+    #removes outliers from education column
+    for x in df.index:
+       if df.loc[x, "education"] % 1 != 0:
+           df.drop(x, inplace=True)
+
+    #removes data of ages greater than 122
+    for x in df.index:
+       if df.loc[x, "age"] > 122:
+            df.drop(x, inplace=True)
+
+    return df
+
+
+def replace_blanks (col):
       df_copy = df
-      df_copy = df_copy.fillna("")
-      for x in df_copy.index:
-          if df_copy.loc[x, col1] == "":
-              df_copy.drop(x, inplace=True)
-      for x in df_copy.index:
-          if df_copy.loc[x, col2] == "":
-              df_copy.drop(x, inplace=True)
+      df_mean = df_copy[col].mean()
+      df_copy[col] = df_copy[col].fillna("")
+      for x in range(len(df_copy[col])):
+          if x in df_copy.index.tolist():
+             if df_copy[col][x] == "":
+                  df_copy[col][x] = df_mean
       return df_copy
-
-  #Extra clean data
-  def remove_blanks (col):
-      df_copy = df
-      df_copy = df_copy.fillna("")
-      for x in df_copy.index:
-          if df_copy.loc[x, col] == "":
-              df_copy.drop(x, inplace=True)
-      return df_copy
-  df = remove_blanks('cost')
-  df = remove_blanks('blood')
-  df = remove_blanks('bloodchem1')
-  df = remove_blanks('glucose')
-  df = remove_blanks('psych2')
-  df = remove_blanks('bloodchem3')
-  df = remove_blanks('bloodchem4')
-  df = remove_blanks('sleep')
-  df = remove_blanks('bloodchem5')
-  df = remove_blanks('psych4')
-  df = remove_blanks('disability')
-  df = remove_blanks('urine')
-  df = remove_blanks('income')
-  df = remove_blanks('bloodchem6')
-
-#removes outliers from education column
-for x in df.index:
-    if df.loc[x, "education"] % 1 != 0:
-        df.drop(x, inplace=True)
-
-#changes income to ints
-#under 11k ---> 11
-#11-25k ---> 25
-#25-50k ---> 50
-#>50k ---> 100
-df["income"] = df["income"].replace("under $11k", "11")
-df["income"] = df["income"].replace("$11-$25k", "25")
-df["income"] = df["income"].replace("$25-$50k", "50")
-df["income"] = df["income"].replace(">$50k", "100")
-
-
-  print(df)
