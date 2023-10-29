@@ -11,44 +11,44 @@ def clean_data (file):
     #changes males to 1 and female to 0
     df["sex"] = df["sex"].str.lower()
     df["sex"] = df["sex"].str.replace("1", "")
-    df["sex"] = df["sex"].str.replace("female", "0")
-    df["sex"] = df["sex"].str.replace("male", "1")
-    df["sex"] = df["sex"].str.replace("m", "1")
+    df["sex"] = df["sex"].replace("female", 0)
+    df["sex"] = df["sex"].replace("male", 1)
+    df["sex"] = df["sex"].replace("m", 1)
 
     #changes cancer; no to 0, yes to 1, and metastatic to 2
-    df["cancer"] = df["cancer"].str.replace("no", "0")
-    df["cancer"] = df["cancer"].str.replace("yes", "1")
-    df["cancer"] = df["cancer"].str.replace("metastatic", "2")
+    df["cancer"] = df["cancer"].replace("no", 0)
+    df["cancer"] = df["cancer"].replace("yes", 1)
+    df["cancer"] = df["cancer"].replace("metastatic", 2)
 
     #changes dnr; no dnr to 0, dnr BEFORE sadm to 1, dnr AFTER sadm to 2
-    df['dnr'] = df['dnr'].str.replace('no dnr', '0')
-    df['dnr'] = df['dnr'].str.replace('dnr before sadm', '1')
-    df['dnr'] = df['dnr'].str.replace('dnr after sadm', '2')
+    df['dnr'] = df['dnr'].replace('no dnr', 0)
+    df['dnr'] = df['dnr'].replace('dnr before sadm', 1)
+    df['dnr'] = df['dnr'].replace('dnr after sadm', 2)
 
     #changes income to ints
     #under 11k ---> 11
     #11-25k ---> 25
     #25-50k ---> 50
     #>50k ---> 100
-    df["income"] = df["income"].replace("under $11k", "11")
-    df["income"] = df["income"].replace("$11-$25k", "25")
-    df["income"] = df["income"].replace("$25-$50k", "50")
-    df["income"] = df["income"].replace(">$50k", "100")
+    df["income"] = df["income"].replace("under $11k", 11)
+    df["income"] = df["income"].replace("$11-$25k", 25)
+    df["income"] = df["income"].replace("$25-$50k", 50)
+    df["income"] = df["income"].replace(">$50k", 100)
 
     #changes primary; Cirrhosis = 0, Colon Cancer = 1, ARF/MOSF w/Sepsis = 2, COPD = 3, Lung Cancer = 4, MOSF w/Malig = 5, CHF = 6
-    df['primary'] = df['primary'].str.replace('Cirrhosis', '0')
-    df['primary'] = df['primary'].str.replace('Colon Cancer', '1')
-    df['primary'] = df['primary'].str.replace('ARF/MOSF w/Sepsis', '2')
-    df['primary'] = df['primary'].str.replace('COPD', '3')
-    df['primary'] = df['primary'].str.replace('Lung Cancer', '4')
-    df['primary'] = df['primary'].str.replace('MOSF w/Malig', '5')
-    df['primary'] = df['primary'].str.replace('CHF', '6')
+    df['primary'] = df['primary'].replace('Cirrhosis', 0)
+    df['primary'] = df['primary'].replace('Colon Cancer', 1)
+    df['primary'] = df['primary'].replace('ARF/MOSF w/Sepsis', 2)
+    df['primary'] = df['primary'].replace('COPD', 3)
+    df['primary'] = df['primary'].replace('Lung Cancer', 4)
+    df['primary'] = df['primary'].replace('MOSF w/Malig', 5)
+    df['primary'] = df['primary'].replace('CHF', 6)
   
     #changes extraprimary; COPD/CHF/Cirrhosis = 0, Cancer = 1, ARF/MOSF = 2, Coma = 3
-    df['extraprimary'] = df['extraprimary'].str.replace('COPD/CHF/Cirrhosis', '0')
-    df['extraprimary'] = df['extraprimary'].str.replace('Cancer', '1')
-    df['extraprimary'] = df['extraprimary'].str.replace('ARF/MOSF', '2')
-    df['extraprimary'] = df['extraprimary'].str.replace('Coma', '3')
+    df['extraprimary'] = df['extraprimary'].replace('COPD/CHF/Cirrhosis', 0)
+    df['extraprimary'] = df['extraprimary'].replace('Cancer', 1)
+    df['extraprimary'] = df['extraprimary'].replace('ARF/MOSF', 2)
+    df['extraprimary'] = df['extraprimary'].replace('Coma', 3)
 
 
     #changes disabilities to ints
@@ -56,10 +56,10 @@ def clean_data (file):
     #no(M2 and SIP pres) ---> 1
     #SIP>=30             ---> 2
     #adl>=4 (>=5 if sur) ---> 3
-    df["disability"] = df["disability"].replace("<2 mo. follow-up", "0")
-    df["disability"] = df["disability"].replace("no(M2 and SIP pres)", "1")
-    df["disability"] = df["disability"].replace("SIP>=30", "2")
-    df["disability"] = df["disability"].replace("adl>=4 (>=5 if sur)", "3")
+    df["disability"] = df["disability"].replace("<2 mo. follow-up", 0)
+    df["disability"] = df["disability"].replace("no(M2 and SIP pres)", 1)
+    df["disability"] = df["disability"].replace("SIP>=30", 2)
+    df["disability"] = df["disability"].replace("adl>=4 (>=5 if sur)", 3)
 
     #removes outliers from education column
     for x in df.index:
@@ -76,10 +76,17 @@ def clean_data (file):
 
 def replace_blanks (col):
       df_copy = df
-      df_mean = df_copy[col].mean()
       df_copy[col] = df_copy[col].fillna("")
+      count = 0
+      sum = 0
+      for i in df_copy[col]:
+          if i != "":
+              count += 1
+              sum += i
+      df_mean = sum/count
       for x in range(len(df_copy[col])):
           if x in df_copy.index.tolist():
              if df_copy[col][x] == "":
                   df_copy[col][x] = df_mean
+
       return df_copy
