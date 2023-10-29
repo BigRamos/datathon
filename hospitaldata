@@ -40,16 +40,46 @@ def clean_data(data)
   df['extraprimary'] = df['extraprimary'].str.replace('Coma', '3')
 
 
-#removes the blanks out fo 2 designated columns
-def remove_blanks (col1, col2):
-    df_copy = df
-    df_copy = df_copy.fillna("")
-    for x in df_copy.index:
-        if df_copy.loc[x, col1] == "":
-            df_copy.drop(x, inplace=True)
-    for x in df_copy.index:
-        if df_copy.loc[x, col2] == "":
-            df_copy.drop(x, inplace=True)
-    return df_copy
+  #removes the blanks out fo 2 designated columns
+  def remove_blanks (col1, col2):
+      df_copy = df
+      df_copy = df_copy.fillna("")
+      for x in df_copy.index:
+          if df_copy.loc[x, col1] == "":
+              df_copy.drop(x, inplace=True)
+      for x in df_copy.index:
+          if df_copy.loc[x, col2] == "":
+              df_copy.drop(x, inplace=True)
+      return df_copy
+
+  #Extra clean data
+  def remove_blanks (col):
+      df_copy = df
+      df_copy = df_copy.fillna("")
+      for x in df_copy.index:
+          if df_copy.loc[x, col] == "":
+              df_copy.drop(x, inplace=True)
+      return df_copy
+  df = remove_blanks('cost')
+  df = remove_blanks('blood')
+  df = remove_blanks('bloodchem1')
+  df = remove_blanks('glucose')
+  df = remove_blanks('psych2')
+  df = remove_blanks('bloodchem3')
+  df = remove_blanks('bloodchem4')
+  df = remove_blanks('sleep')
+  df = remove_blanks('bloodchem5')
+  df = remove_blanks('psych4')
+  df = remove_blanks('disability')
+  df = remove_blanks('urine')
+  df = remove_blanks('income')
+  df = remove_blanks('bloodchem6')
+
+  #changes education; removes outliers (all that are not integers)
+  def isint(n):
+      if (n - int(n) > 0):
+          return False
+      else:
+          return True
 
   print(df)
