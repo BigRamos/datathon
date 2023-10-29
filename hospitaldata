@@ -74,19 +74,11 @@ def clean_data (file):
     return df
 
 
-def replace_blanks (col):
-      df_copy = df
-      df_copy[col] = df_copy[col].fillna("")
-      count = 0
-      sum = 0
-      for i in df_copy[col]:
-          if i != "":
-              count += 1
-              sum += i
-      df_mean = sum/count
-      for x in range(len(df_copy[col])):
-          if x in df_copy.index.tolist():
-             if df_copy[col][x] == "":
-                  df_copy[col][x] = df_mean
+def fill_missing_with_mean(df):
+    # Calculate the mean for each column
+    means = df.mean()
 
-      return df_copy
+    # Fill missing values with the mean of their respective columns
+    df_filled = df.fillna(means)
+
+    return df_filled
