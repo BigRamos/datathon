@@ -75,12 +75,10 @@ def clean_data(data)
   df = remove_blanks('income')
   df = remove_blanks('bloodchem6')
 
-  #changes education; removes outliers (all that are not integers)
-  def isint(n):
-      if (n - int(n) > 0):
-          return False
-      else:
-          return True
+#removes outliers from education column
+for x in df.index:
+    if df.loc[x, "education"] % 1 != 0:
+        df.drop(x, inplace=True)
 
 #changes income to ints
 #under 11k ---> 11
