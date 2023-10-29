@@ -82,4 +82,15 @@ def clean_data(data)
       else:
           return True
 
+#changes income to ints
+#under 11k ---> 11
+#11-25k ---> 25
+#25-50k ---> 50
+#>50k ---> 100
+df["income"] = df["income"].replace("under $11k", "11")
+df["income"] = df["income"].replace("$11-$25k", "25")
+df["income"] = df["income"].replace("$25-$50k", "50")
+df["income"] = df["income"].replace(">$50k", "100")
+
+
   print(df)
